@@ -1,5 +1,14 @@
 <?php
 
+/**
+ *
+ * Plugin for submitting additional files to Figshare
+ * Written by Andy Byers, Ubiquity Press
+ * As part of the Streamingling Deposit JISC Project 
+ *
+ */
+
+
 import('classes.handler.Handler');
 require_once('FigshareDAO.inc.php');
 
@@ -60,6 +69,30 @@ class FigshareHandler extends Handler {
 		$templateMgr->display($tp . $fname);
 	}
 
+	/* Makes a call to the figshare api */
+	function api_call($data, $url) {
+		$consumer_key = Config::getVar('general', 'figshare_consumer_key');
+		$consumer_secret = Config::getVar('general', 'figshare_consumer_secret');
+		$access_token = Config::getVar('general', 'figshare_access_token');
+		$access_token_secret = Config::getVar('general', 'figshare_access_token_secret');
+		$method = 'POST';
+
+		$oauth = new OAuth($consumer_key, $consumer_secret);
+		$oauth->setToken($access_token, $access_token_secret);
+
+		$OA_header = $oauth->getRequestHeader($method, $url);
+		$headers = array("Content-Type: application/json", "Authorization: $OA_header");
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+		return curl_exec($ch);
+	}
+
 
 	//
 	// views
@@ -88,9 +121,25 @@ class FigshareHandler extends Handler {
 
 		$articleDao =& DAORegistry::getDAO('ArticleDAO');
 		$article =& $articleDao->getArticle($article_id);
+
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			import('classes.file.ArticleFileManager');
+			$article_file_manager = new ArticleFileManager($article_id);
+			$file_id = $article_file_manager->uploadSuppFile('uploadFigFile');
+
+			$file = $article_file_manager->getFile($file_id);
+
+			// create the figshare record
+			$url = 'http://api.figshare.com/v1/my_data/articles';
+			$data = json_encode(array('title'=>'Test dataset', 'description'=>'Test description', 'defined_type'=>'dataset'));
+			$test = $this->api_call($data, $url);
+			echo $test;
+			//$this->dao->create_figshare_file()
+
+		}
 		
 		$context = array(
-			"page_title" => "Figshare Uploader",
+			"page_title" => "Figshare Uploader for " . $article->getArticleTitle(),
 			"article" => $article,
 		);
 		$this->display('index.tpl', $context);

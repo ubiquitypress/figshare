@@ -1,4 +1,13 @@
 <?php
+
+/**
+ *
+ * Plugin for submitting additional files to Figshare
+ * Written by Andy Byers, Ubiquity Press
+ * As part of the Streamingling Deposit JISC Project 
+ *
+ */
+
 import('lib.pkp.classes.plugins.GenericPlugin');
 require_once('FigshareDAO.inc.php');
 
