@@ -70,29 +70,40 @@ class FigshareHandler extends Handler {
 	}
 
 	/* Makes a call to the figshare api */
-	function api_call($data, $url) {
+	function api_call($data, $url, $method="POST", $file=false) {
 		$consumer_key = Config::getVar('general', 'figshare_consumer_key');
 		$consumer_secret = Config::getVar('general', 'figshare_consumer_secret');
-		$access_token = Config::getVar('general', 'figshare_access_token');
-		$access_token_secret = Config::getVar('general', 'figshare_access_token_secret');
-		$method = 'POST';
 
 		$oauth = new OAuth($consumer_key, $consumer_secret);
-		$oauth->setToken($access_token, $access_token_secret);
+		$oauth->setToken($_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+
 
 		$OA_header = $oauth->getRequestHeader($method, $url);
-		$headers = array("Content-Type: application/json", "Authorization: $OA_header");
+		if ($file != false){
+			$headers = array("Content-Type: multipart/form-data","Authorization: $OA_header");
+		} else {
+			$headers = array("Content-Type: application/json", "Authorization: $OA_header");
+		}
+
 
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-		return curl_exec($ch);
+		if ($method == 'PUT') {
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+			curl_setopt($ch, CURLOPT_POSTFIELDS    ,$data);
+		} else {
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		}
+
+		return json_decode(curl_exec($ch));
 	}
-
 
 	//
 	// views
@@ -128,22 +139,96 @@ class FigshareHandler extends Handler {
 			$file_id = $article_file_manager->uploadSuppFile('uploadFigFile');
 
 			$file = $article_file_manager->getFile($file_id);
-
 			// create the figshare record
 			$url = 'http://api.figshare.com/v1/my_data/articles';
 			$data = json_encode(array('title'=>'Test dataset', 'description'=>'Test description', 'defined_type'=>'dataset'));
-			$test = $this->api_call($data, $url);
-			echo $test;
-			//$this->dao->create_figshare_file()
+			$figshare_article = $this->api_call($data, $url);
+
+			var_dump($figshare_article);
+
+			// add file
+			$url = 'http://api.figshare.com/v1/my_data/articles/' . $figshare_article->{'article_id'} . '/files';
+			$data = array('filedata'=>'@/var/www/vhosts/ojs/test.txt');
+			$figshare_file = $this->api_call($data, $url, "PUT", true);
+
+			$params = array();
+			$params[] = $file_id;
+			$params[] = $article_id;
+			$params[] = $figshare_article->{'article_id'};
+			$params[] = $_POST["title"];
+			$params[] = $_POST["description"];
+			$params[] = $_POST["type"];
+			$params[] = 'draft';
+			$params[] = $figshare_article->{'doi'};
+			$this->dao->create_figshare_file($params);
 
 		}
+
+		$figshare_files =& $this->dao->fetch_figshare_articles($article_id);
 		
 		$context = array(
 			"page_title" => "Figshare Uploader for " . $article->getArticleTitle(),
 			"article" => $article,
+			"figshare_files" => $figshare_files,
 		);
 		$this->display('index.tpl', $context);
 	}
+
+	function oauth($args, &$request) {
+		$article_id = clean_string(array_shift($args));
+		$this->validate($request, $article_id, 4);
+
+		$consumer_key = Config::getVar('general', 'figshare_consumer_key');
+		$consumer_secret = Config::getVar('general', 'figshare_consumer_secret');
+
+		$oauth = new OAuth($consumer_key, $consumer_secret);
+		$response = $oauth->getRequestToken(
+			'http://api.figshare.com/v1/pbl/oauth/request_token',
+			'http://ojs.dev.localhost/index.php/test/figshare/callback/' . $article_id
+		);
+
+		$_SESSION['req_token'] = $response['oauth_token'];
+		$_SESSION['req_secret'] = $response['oauth_token_secret'];
+
+		header('Location: http://api.figshare.com/v1/pbl/oauth/authorize?oauth_token=' . $response['oauth_token']);
+	}
+
+	function callback($args, &$request) {
+		$article_id = clean_string(array_shift($args));
+		$this->validate($request, $article_id, 4);
+
+		$consumer_key = Config::getVar('general', 'figshare_consumer_key');
+		$consumer_secret = Config::getVar('general', 'figshare_consumer_secret');
+
+		$oauth = new OAuth($consumer_key, $consumer_secret);
+		$oauth->enableDebug();
+		$oauth->setToken($_SESSION['req_token'], $_SESSION['req_secret']);
+		try {
+			$response = $oauth->getAccessToken(
+				'http://api.figshare.com/v1/pbl/oauth/access_token',
+				null, null, 'POST'
+			);
+
+		    if(!empty($response)) {
+		        print_r($response);
+		    } else {
+		        print "Failed fetching access token, response was: " . $oauth->getLastResponse();
+		    }
+
+			var_dump($response);
+
+			$_SESSION['oauth_token'] = $response['oauth_token'];
+			$_SESSION['oauth_token_secret'] = $response['oauth_token_secret'];
+
+		} catch(OAuthException $E) {
+		    echo "Response: ". $E->lastResponse . "\n";
+		    var_dump($E);
+		}
+
+		//header('Location: http://ojs.dev.localhost/index.php/test/figshare/submission/' . $article_id);
+	}
+
+
 
 	/**
 	 * Validation check for submission.

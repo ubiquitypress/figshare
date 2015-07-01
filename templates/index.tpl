@@ -14,40 +14,43 @@
 <h4>Current Files</h4>
 <table class="listing" width="100%">
 <tbody><tr>
-	<td colspan="6" class="headseparator">&nbsp;</td>
+	<td colspan="7" class="headseparator">&nbsp;</td>
 </tr>
 <tr class="heading" valign="bottom">
 	<td width="5%">ID</td>
-	<td width="30%">Title</td>
+	<td width="25%">Title</td>
+	<td width="30%">Description</td>
 	<td width="10%">DOI</td>
-	<td width="25%">Original file name</td>
-	<td class="nowrap" width="15%">Date uploaded</td>
-	<td width="15%" align="right">Action</td>
+	<td width="10%">Type</td>
+	<td class="nowrap" width="30%">Original File Name</td>
+	<td width="15%" align="right">Uploaded</td>
 </tr>
 <tr>
-	<td colspan="6" class="headseparator">&nbsp;</td>
+	<td colspan="7" class="headseparator">&nbsp;</td>
 </tr>
-<tr valign="top">
-	<td colspan="6" class="nodata">No data files have been added to this submission.</td>
-</tr>
+{foreach from=$figshare_files item=file}
+<tr>
+	<td>{$file.id}</td>
+	<td>{$file.title}</td>
+	<td>{$file.description}</td>
+	<td>{$file.doi}</td>
+	<td>{$file.type|capitalize}</td>
+	<td>{$file.original_file_name}</td>
+	<td>{$file.date_uploaded}</td>
+{/foreach}
 </tbody></table>
-
+<form method="POST" enctype="multipart/form-data">
 <h4>Add a New File</h4>
 <div class="separator"></div>
-<table class="data" width="100%">
-<tbody><tr>
-	<td class="label" width="30%">
-<label for="uploadSuppFile">
-	Upload a file </label>
-</td>
-	<td class="value" width="70%">
-	<form method="POST" enctype="multipart/form-data">
-		<input name="articleId" value="{$article->getId()}" type="hidden">
-		<input name="uploadFigFile" id="uploadFigFile" class="uploadField" type="file"> <input name="submitUploadSuppFile" class="button" value="Upload" type="submit">
-			</td>
-	</form>
-</tr>
-</tbody></table>
+<p><strong>Title</strong>:<br /><input type="text" name="title"></p>
+<p><strong>Type</strong>:<br /><select name="type" style="width: 235px;"><option value="dataset">Data Set</option><option value="figure">Figure</option><option value="code">Code</option></select></p>
+<p><strong>Description</strong>:<br /><textarea name="description" cols="30"></textarea>
+<input name="articleId" value="{$article->getId()}" type="hidden">
+<p><strong>Upload File</strong>:<br />
+<input name="uploadFigFile" id="uploadFigFile" class="uploadField" type="file"> </p>
+
+<input name="submitUploadSuppFile" class="button" value="Submit &amp; Upload" type="submit">
+</form>
 
 <div class="separator"></div>
 
