@@ -14,7 +14,7 @@
 <h4>Current Files</h4>
 <table class="listing" width="100%">
 <tbody><tr>
-	<td colspan="7" class="headseparator">&nbsp;</td>
+	<td colspan="8" class="headseparator">&nbsp;</td>
 </tr>
 <tr class="heading" valign="bottom">
 	<td width="5%">ID</td>
@@ -24,9 +24,10 @@
 	<td width="10%">Type</td>
 	<td class="nowrap" width="30%">Original File Name</td>
 	<td width="15%" align="right">Uploaded</td>
+	<td></td>
 </tr>
 <tr>
-	<td colspan="7" class="headseparator">&nbsp;</td>
+	<td colspan="8" class="headseparator">&nbsp;</td>
 </tr>
 {foreach from=$figshare_files item=file}
 <tr>
@@ -37,6 +38,7 @@
 	<td>{$file.type|capitalize}</td>
 	<td>{$file.original_file_name}</td>
 	<td>{$file.date_uploaded}</td>
+	<td><a href="?remove_file={$file.id}&ojs_file={$file.file_id}">Remove</a></td>
 {/foreach}
 </tbody></table>
 <form method="POST" enctype="multipart/form-data">

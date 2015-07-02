@@ -29,5 +29,15 @@ EOF;
 EOF;
 		return $this->retrieve($sql, array($article_id));
 	}
+
+	function delete_figshare_file($figshare_file_id) {
+		$sql = <<< EOF
+			DELETE FROM figshare_files
+			WHERE id = ?
+EOF;
+		$commit = $this->update($sql, array($figshare_file_id));
+
+		return $commit;
+	}
 }
 

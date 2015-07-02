@@ -39,6 +39,13 @@ class FigshareHandler extends Handler {
 	}
 	
 	// utils
+
+	function file_path($articleId, $file_name) {
+		$articleDao =& DAORegistry::getDAO('ArticleDAO');
+		$article =& $articleDao->getArticle($articleId);
+		$journalId = $article->getJournalId();
+		return Config::getVar('files', 'files_dir') . '/journals/' . $journalId .  '/articles/' . $articleId . '/supp/' . $file_name;
+	}
 	
 	/* sets up the template to be rendered */
 	function display($fname, $page_context=array()) {
@@ -141,14 +148,16 @@ class FigshareHandler extends Handler {
 			$file = $article_file_manager->getFile($file_id);
 			// create the figshare record
 			$url = 'http://api.figshare.com/v1/my_data/articles';
-			$data = json_encode(array('title'=>'Test dataset', 'description'=>'Test description', 'defined_type'=>'dataset'));
+			$data = json_encode(array('title'=>$_POST["title"], 'description'=>$_POST["description"], 'defined_type'=>$_POST["type"]));
 			$figshare_article = $this->api_call($data, $url);
-
-			var_dump($figshare_article);
 
 			// add file
 			$url = 'http://api.figshare.com/v1/my_data/articles/' . $figshare_article->{'article_id'} . '/files';
-			$data = array('filedata'=>'@/var/www/vhosts/ojs/test.txt');
+			
+			// Get the file path
+			$file_path = $this->file_path($article_id, $file->getFileName());
+
+			$data = array('filedata'=>'@' . $file_path);
 			$figshare_file = $this->api_call($data, $url, "PUT", true);
 
 			$params = array();
@@ -162,6 +171,14 @@ class FigshareHandler extends Handler {
 			$params[] = $figshare_article->{'doi'};
 			$this->dao->create_figshare_file($params);
 
+		} elseif (isset($_GET['remove_file']) && isset($_GET['ojs_file'])) {
+			$figshare_file_id = $_GET['remove_file'];
+			$ojs_file_id = $_GET['ojs_file'];
+
+			import('classes.file.ArticleFileManager');
+			$article_file_manager = new ArticleFileManager($article_id);
+			$article_file_manager->deleteFile($ojs_file_id);
+			$this->dao->delete_figshare_file($figshare_file_id);
 		}
 
 		$figshare_files =& $this->dao->fetch_figshare_articles($article_id);
@@ -225,7 +242,7 @@ class FigshareHandler extends Handler {
 		    var_dump($E);
 		}
 
-		//header('Location: http://ojs.dev.localhost/index.php/test/figshare/submission/' . $article_id);
+		header('Location: http://ojs.dev.localhost/index.php/test/figshare/submission/' . $article_id);
 	}
 
 
