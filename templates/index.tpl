@@ -1,6 +1,11 @@
 {assign var="pageTitleTranslated" value=$page_title}
 {include file="common/header.tpl"}
 
+{literal}
+<style>
+</style>
+{/literal}
+
 <h3>{$article->getArticleTitle()}</h3>
 <p><strong>Warning: Uploading files to Figshare is intended for files which you wish to be published alongside your article. For all other files, you should use the supplementary files function.</strong></p>
 <p>You can upload files directly to Figshare from here. The files will be marked as draft until such time as the article is published, at which point the Editor can choose to publish these data files alongside the article. This allows for:
@@ -36,7 +41,7 @@
 	<td>{$file.description}</td>
 	<td>{$file.doi}</td>
 	<td>{$file.type|capitalize}</td>
-	<td>{$file.original_file_name}</td>
+	<td>{$file.original_file_name|truncate:30}</td>
 	<td>{$file.date_uploaded}</td>
 	<td><a href="?remove_file={$file.id}&ojs_file={$file.file_id}">Remove</a></td>
 {/foreach}

@@ -64,7 +64,7 @@ class FigshareHandler extends Handler {
 			$context[$key] = $val;
 		}
 
-		$plugin =& PluginRegistry::getPlugin('generic', COLLECTION_PLUGIN_NAME);
+		$plugin =& PluginRegistry::getPlugin('generic', FIGSHARE_PLUGIN_NAME);
 		$tp = $plugin->getTemplatePath();
 		$context["template_path"] = $tp;
 		$context["article_select_template"] = $tp . "article_select_snippet.tpl";
@@ -195,8 +195,8 @@ class FigshareHandler extends Handler {
 		$article_id = clean_string(array_shift($args));
 		$this->validate($request, $article_id, 4);
 
-		$consumer_key = Config::getVar('general', 'figshare_consumer_key');
-		$consumer_secret = Config::getVar('general', 'figshare_consumer_secret');
+		$consumer_key = "93tNF6iUvZHlHrjhxruI2g";
+		$consumer_secret = "yftm1PU6TYNhwProLHTWqw";
 
 		$oauth = new OAuth($consumer_key, $consumer_secret);
 		$response = $oauth->getRequestToken(
@@ -242,7 +242,7 @@ class FigshareHandler extends Handler {
 		    var_dump($E);
 		}
 
-		header('Location: http://ojs.dev.localhost/index.php/test/figshare/submission/' . $article_id);
+		header('Location: http://ojs.ubiquity.press/index.pkp/test/figshare/submission/' . $article_id);
 	}
 
 

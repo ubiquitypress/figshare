@@ -21,7 +21,7 @@ class FigsharePlugin extends GenericPlugin {
 			HookRegistry::register("LoadHandler", array(&$this, "handleRequest"));
 			$tm =& TemplateManager::getManager();
 			$tm->assign("collectionsEnabled", true);
-			define('COLLECTION_PLUGIN_NAME', $this->getName());
+			define('FIGSHARE_PLUGIN_NAME', $this->getName());
 		}
 		return true;
 	}
