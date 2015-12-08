@@ -78,8 +78,8 @@ class FigshareHandler extends Handler {
 
 	/* Makes a call to the figshare api */
 	function api_call($data, $url, $method="POST", $file=false) {
-		$consumer_key = Config::getVar('general', 'figshare_consumer_key');
-		$consumer_secret = Config::getVar('general', 'figshare_consumer_secret');
+		$consumer_key = "93tNF6iUvZHlHrjhxruI2g";
+		$consumer_secret = "yftm1PU6TYNhwProLHTWqw";
 
 		$oauth = new OAuth($consumer_key, $consumer_secret);
 		$oauth->setToken($_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
