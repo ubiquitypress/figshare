@@ -201,7 +201,7 @@ class FigshareHandler extends Handler {
 		$oauth = new OAuth($consumer_key, $consumer_secret);
 		$response = $oauth->getRequestToken(
 			'http://api.figshare.com/v1/pbl/oauth/request_token',
-			'http://ojs.dev.localhost/index.php/test/figshare/callback/' . $article_id
+			'http://ojs.ubiquity.press/index.php/test/figshare/callback/' . $article_id
 		);
 
 		$_SESSION['req_token'] = $response['oauth_token'];
