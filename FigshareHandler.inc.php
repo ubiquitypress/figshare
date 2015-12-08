@@ -242,7 +242,7 @@ class FigshareHandler extends Handler {
 		    var_dump($E);
 		}
 
-		header('Location: http://ojs.ubiquity.press/index.pkp/test/figshare/submission/' . $article_id);
+		header('Location: http://ojs.ubiquity.press/index.php/test/figshare/submission/' . $article_id);
 	}
 
 
