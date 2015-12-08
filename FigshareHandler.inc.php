@@ -214,8 +214,8 @@ class FigshareHandler extends Handler {
 		$article_id = clean_string(array_shift($args));
 		$this->validate($request, $article_id, 4);
 
-		$consumer_key = Config::getVar('general', 'figshare_consumer_key');
-		$consumer_secret = Config::getVar('general', 'figshare_consumer_secret');
+		$consumer_key = "93tNF6iUvZHlHrjhxruI2g";
+		$consumer_secret = "yftm1PU6TYNhwProLHTWqw";
 
 		$oauth = new OAuth($consumer_key, $consumer_secret);
 		$oauth->enableDebug();
