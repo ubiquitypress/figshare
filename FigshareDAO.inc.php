@@ -39,5 +39,25 @@ EOF;
 
 		return $commit;
 	}
+
+	function get_article_galleys($article_id) {
+		$sql = <<< EOF
+			SELECT * FROM article_galleys
+			WHERE article_id = ?
+EOF;
+		return $this->retrieve($sql, array($article_id));
+	}
+
+	function add_article_setting($params) {
+		$sql = <<< EOF
+			INSERT INTO article_settings
+			(article_id, setting_name, setting_value, setting_type)
+			VALUES
+			(?, ?, ?, ?)
+EOF;
+		$commit = $this->update($sql, $params);
+
+		return $commit;
+	}
 }
 
