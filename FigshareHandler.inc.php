@@ -247,7 +247,7 @@ class FigshareHandler extends Handler {
 			$figshare_article = $this->v2_call($path='account/articles', $data, $method="POST");
 			$figshare_article_id = end(explode("/", $figshare_article->location));
 
-			$reserve_doi_response = $this->v2_call($path='account/articles/' . $figshare_article_id . '/reserve_doi', $method="POST");
+			//$reserve_doi_response = $this->v2_call($path='account/articles/' . $figshare_article_id . '/reserve_doi', $method="POST");
 
 			// initiate file upload using figshare's wierd file service.
 			$file_path = $this->file_path($article_id, $file->getFileName());
@@ -268,15 +268,8 @@ class FigshareHandler extends Handler {
 			$mark_as_complete = $this->v2_call($path='account/articles/' . $figshare_article_id . '/files/' . $figshare_file_id, $method="POST");
 			$publish_article = $this->v2_call($path='account/articles/' . $figshare_article_id . '/publish', $method="POST");
 
-			$params = array();
-			$params[] = $file_id;
-			$params[] = $article_id;
-			$params[] = $figshare_article_id;
-			$params[] = $_POST["title"];
-			$params[] = $_POST["description"];
-			$params[] = $_POST["type"];
-			$params[] = 'draft';
-			$params[] = $reserve_doi_response->{'doi'};
+			$params = array($file_id, $article_id, $figshare_article_id, $_POST["title"], $_POST["description"], $_POST["type"], 'draft', '');
+			//$params[] = '';//$reserve_doi_response->{'doi'};
 			$this->dao->create_figshare_file($params);
 
 		} elseif (isset($_GET['remove_file']) && isset($_GET['ojs_file'])) {
