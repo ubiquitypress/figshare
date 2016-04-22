@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE schema SYSTEM "../../../lib/pkp/dtd/xmlSchema.dtd">
+
+<!--
+  * schema.xml
+  *
+  * Copyright (c) 2003-2011 John Willinsky
+  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+  *
+  * XML Galley plugin schema in XML.
+  *
+  * $Id$
+  -->
+
+<schema version="0.2">
+
+	<!--
+	 *
+	 * TABLE figshare_files
+	 *
+	 -->
+	<table name="figshare_files">
+
+		<field name="id" type="I8">
+			<KEY/>
+			<AUTOINCREMENT/>
+		</field>
+
+		<field name="article_id" type="I8">
+			<NOTNULL/>
+		</field>
+
+		<field name="figshare_id" type="I8">
+			<NOTNULL/>
+		</field>
+
+		<field name="file_id" type="I8">
+			<NOTNULL/>
+		</field>
+
+		<field name="title" type="C2" size="400">
+		</field>
+
+		<field name="description" type="B">
+		</field>
+
+		<field name="tags" type="C2" size="200">
+		</field>
+
+		<field name="type" type="C2" size="100">
+		</field>
+
+		<field name="status" type="C2" size="100">
+		</field>
+
+		<field name="doi" type="C2" size="100">
+		</field>
+
+		<descr>OSF/COS Open Practice Badges</descr>
+	</table>
+
+</schema>

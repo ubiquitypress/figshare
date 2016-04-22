@@ -289,6 +289,7 @@ class FigshareHandler extends Handler {
 			"page_title" => "Figshare Uploader for article: " . $article->getArticleTitle(),
 			"article" => $article,
 			"figshare_files" => $figshare_files,
+			"journal" => $journal,
 		);
 		$this->display('index.tpl', $context);
 	}

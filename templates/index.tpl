@@ -64,5 +64,6 @@
 </form>
 
 <div class="separator"></div>
+<p>When you are finished, you can jump back to the <a href="{$journal->getUrl()}/author/submit/4?articleId={$article->getId()}">submission form</a>.</p>
 
 {include file="common/footer.tpl"}
